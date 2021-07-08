@@ -7,6 +7,7 @@ import struct.GameData;
 import struct.Key;
 import struct.MotionData;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class JohnCobraBot implements AIInterface {
 	// MÉTODOS
 	@Override
 	public void close() {
-
+		System.out.print("a");
 	}
 
 	@Override
@@ -149,6 +150,8 @@ public class JohnCobraBot implements AIInterface {
 		
 		myCharacterMotion=gameData.getMotionData(playerNumber);
 		opponentMotion=gameData.getMotionData(!playerNumber);
+		
+		initWriter();
 		
 		return 0;
 	}
@@ -195,8 +198,8 @@ public class JohnCobraBot implements AIInterface {
 	}
 
 	@Override
-	public void roundEnd(int arg0, int arg1, int arg2) {
-
+	public void roundEnd(int p1Hp, int p2Hp, int frames) {
+        System.out.println("iswin: " + (myCharacterData.getHp() > opponentData.getHp()) + " || HP1:" + p1Hp + " || HP2:" + p2Hp);
 	}
 
 	public void orderMoves() {
@@ -311,8 +314,105 @@ public class JohnCobraBot implements AIInterface {
 		State myState = myCharacterData.getState();
 		State enemyState = opponentData.getState();
 		int myEnergy = myCharacterData.getEnergy();
+		int enemyEnergy = opponentData.getEnergy();
+		
+		int x = frameData.getDistanceX();
+		System.out.println(x);
+		Deque<AttackData> projectiles;
+		if(playerNumber)
+			projectiles=frameData.getProjectilesByP2();
+		else
+			projectiles=frameData.getProjectilesByP1();
+
+				
+		if(myState==State.STAND && myEnergy>=150) { 									    //Bolazo de fuego
+			
+			selected.add(Action.STAND_D_DF_FC);
+			
+		}else if(myCharacterData.getCenterX()<50) {											//Esquina izquierda
+			if(!myCharacterData.isFront()) { 												//ABUSAR
+				
+				selected.add(Action.CROUCH_B);
+				selected.add(Action.CROUCH_FB);
+				if(myEnergy>55)
+					selected.add(Action.STAND_F_D_DFB);
+				else
+					selected.add(Action.STAND_A);				
+				selected.add(Action.JUMP);
+				
+			}else {							 												//ESCAPAR
+				selected.add(Action.FOR_JUMP);
+				selected.add(Action.STAND_GUARD);
+				selected.add(Action.CROUCH_GUARD);
+			}
+		}else if(myCharacterData.getCenterX()>910) {										//Esquina derecha
+			
+			if(myCharacterData.isFront()) { 												//ABUSAR
+				
+				selected.add(Action.CROUCH_B);
+				selected.add(Action.CROUCH_FB);
+				if(myEnergy>55)
+					selected.add(Action.STAND_F_D_DFB);
+				else
+					selected.add(Action.STAND_A);				
+				selected.add(Action.JUMP);
+				
+			}else {							 												//ESCAPAR
+				selected.add(Action.FOR_JUMP);
+				selected.add(Action.STAND_GUARD);
+				selected.add(Action.CROUCH_GUARD);
+			}
+			
+			
+		}else if(myState==State.AIR) {														//En el aire
+			if(x<100)
+				selected.add(Action.AIR_DA);
+			else if(myEnergy>50)
+				selected.add(Action.AIR_D_DB_BB);
+				selected.add(Action.AIR_DB);
+			selected.add(Action.AIR_D_DF_FB);
+
+		}else if(x < 500 && x > 450 && myState==State.STAND && enemyState==State.STAND) {	//Distancia Inicial, ambos en el suelo
+			
+			selected.add(Action.STAND_FB);
+			selected.add(Action.CROUCH_FB);
+			selected.add(Action.FOR_JUMP);
+			if(myEnergy>55)
+				selected.add(Action.STAND_F_D_DFB);
+			else
+				selected.add(Action.STAND_F_D_DFA);
+
+		}else if(x<100){																	//Close Combat
+			selected.add(Action.CROUCH_A);
+			selected.add(Action.THROW_A);
+			selected.add(Action.STAND_B);
+			selected.add(Action.BACK_JUMP);
+		}else if(x>600){																	//Full Screen
+			selected.add(Action.DASH);
+			selected.add(Action.FOR_JUMP);
+			selected.add(Action.STAND_D_DB_BA);
+		}else {
+			
+			selected.add(Action.FOR_JUMP);
+			
+		}
+
+
+
+		return selected;
+
+	}
+	/*
+	public LinkedList<Action> selectMyMoves() {
+
+		LinkedList<Action> selected = new LinkedList<Action>();
+
+		State myState = myCharacterData.getState();
+		State enemyState = opponentData.getState();
+		int myEnergy = myCharacterData.getEnergy();
 		int enemyEnergy = frameData.getCharacter(!playerNumber).getEnergy();
 		int x = frameData.getDistanceX();
+		System.out.println(x);
 		Deque<AttackData> projectiles;
 
 		if (playerNumber)
@@ -391,7 +491,8 @@ public class JohnCobraBot implements AIInterface {
 		return selected;
 
 	}
-
+	*/
+	
 	public LinkedList<Action> selectEnemyMoves() {
 		LinkedList<Action> selected = new LinkedList<Action>();
 		
@@ -420,7 +521,31 @@ public class JohnCobraBot implements AIInterface {
 		return selected;
 
 	}
-
+	
+	private void writeData(String filePath, String data) {
+        try {
+            final FileWriter writer = new FileWriter(filePath);
+            final BufferedWriter buffer = new BufferedWriter(writer);
+            buffer.write(data);
+            buffer.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	private void initWriter() {
+        final File dir = new File("C:/Users/Kike/git/JohnCobraBotV2/JohnCobraBot/statistics");
+        String currentDate=java.time.LocalDate.now().toString();  
+        final File file = new File("C:/Users/Kike/git/JohnCobraBotV2/JohnCobraBot/statistics/" + currentDate+".txt");
+        
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        writeData(file.getPath(),"asdasdasd+\n asdasd");
+    }
+	
+	
 	/*
 	 * public void setOpponentActionPool() { enemyActionPool.clear();
 	 * 
