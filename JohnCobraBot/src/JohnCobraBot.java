@@ -543,6 +543,7 @@ public class JohnCobraBot implements AIInterface {
             dir.mkdir();
         }
         writeData(file.getPath(),"asdasdasd+\n asdasd");
+        writeData(file.getPath(),"asdasdasd+\n asdasd");
     }
 	
 	
