@@ -16,10 +16,10 @@ import struct.GameData;
 public class MCTS {
 
 	// CONSTANTS
-	public static final int N_FRAMES_SIMULATED = 20;
-	public static final int DEPTH_LIMIT = 2;
+	public static final int N_FRAMES_SIMULATED = 60;
+	public static final int DEPTH_LIMIT = 3;
 	public static final int N_ITERATIONS = 50;
-	public static final int N_RANDOM_ACTIONS = 3;
+	public static final int N_RANDOM_ACTIONS = 5;
 	public static final double C = Math.sqrt(2);
 
 	// TOOLS
@@ -47,6 +47,8 @@ public class MCTS {
 		this.gameData = gameData;
 		this.myActionPool = myActionPool;
 		this.enemyActionPool = enemyActionPool;
+		
+		
 		oppOGState = fd.getCharacter(!player);
 		playerOGState = fd.getCharacter(player);
 
@@ -92,7 +94,7 @@ public class MCTS {
 		// SIMULA LA ACCION DEL NODO PARA EL PLAYER Y X ACCIONES DEL ENEMIGO ALEATORIAS
 		FrameData result = simulator.simulate(fd, player, myRandomActions, enemyRandomActions, N_FRAMES_SIMULATED);
 
-		return calculateScore(result);
+		return calculateScoreSimple(result);
 
 	}
 
@@ -135,7 +137,6 @@ public class MCTS {
 					
 				} 																	// SI NO ES HOJA -> SELECCIONAMOS EL SIGUIENTE
 			}		
-			//System.out.println("---------------------------------------------------------");
 		}	
 		
 		//printTree();
@@ -181,6 +182,7 @@ public class MCTS {
 				bestAction = root.children.get(i).action;
 			}
 		}
+		printTree();
 		System.out.println("ELECCION: "+bestAction.name());
 		System.out.println("=============================================================");
 
@@ -197,16 +199,38 @@ public class MCTS {
 				mostVisitedAction = root.children.get(i).action;
 			}
 		}
+		printTree();
 		System.out.println("ELECCION: "+mostVisitedAction.name());
 		System.out.println("=============================================================");
 
 		return mostVisitedAction;
 	}
-
+	public double calculateScoreSimple (FrameData fd) { // ADD MULTIPLOS SITUACIONES FAVORABLES COMO STUN
+		
+		
+		State myState = fd.getCharacter(player).getState();
+		State opponentState = fd.getCharacter(!player).getState();
+		
+		double result = fd.getCharacter(player).getHp() - fd.getCharacter(!player).getHp();
+		//PONDERACION PARA PRIORIZAR LA VIDA NANTE LA DISTANCIA
+		double pond= fd.getDistanceX()/1000;
+		result += result*pond ;
+		
+		if(myState==State.DOWN)
+			result*=0.9;
+		if(opponentState==State.DOWN)
+			result*=1.1;
+		
+		return result;
+		
+		
+	}
+	/*
 	public double calculateScore(FrameData fd) { // ADD MULTIPLOS SITUACIONES FAVORABLES COMO STUN
 		
 		double myHp = fd.getCharacter(player).getHp();
 		double opponentHp = fd.getCharacter(!player).getHp();
+		
 		
 		double myDiffHp = myHp - playerOGState.getHp() ;
 		double opponentDiffHp = opponentHp - oppOGState.getHp() ;
@@ -229,7 +253,7 @@ public class MCTS {
 		return result;
 		
 	}
-
+	*/
 	public double calculateUCB1(Node node) {
 		double result;
 		if (node.n == 0)
