@@ -16,10 +16,10 @@ import struct.GameData;
 public class MCTS {
 
 	// CONSTANTS
-	public static final int N_FRAMES_SIMULATED = 60;
-	public static final int DEPTH_LIMIT = 3;
+	public static final int N_FRAMES_SIMULATED = 30;
+	public static final int DEPTH_LIMIT = 4;
 	public static final int N_ITERATIONS = 50;
-	public static final int N_RANDOM_ACTIONS = 5;
+	public static final int N_RANDOM_ACTIONS = 3;
 	public static final double C = Math.sqrt(2);
 
 	// TOOLS
@@ -212,7 +212,7 @@ public class MCTS {
 		State opponentState = fd.getCharacter(!player).getState();
 		
 		double result = fd.getCharacter(player).getHp() - fd.getCharacter(!player).getHp();
-		//PONDERACION PARA PRIORIZAR LA VIDA NANTE LA DISTANCIA
+		//PONDERACION PARA PRIORIZAR LA VIDA ANTE LA DISTANCIA
 		double pond= fd.getDistanceX()/1000;
 		result += result*pond ;
 		
@@ -220,6 +220,8 @@ public class MCTS {
 			result*=0.9;
 		if(opponentState==State.DOWN)
 			result*=1.1;
+		if(result==0)
+			result += 30 * (1/pond);
 		
 		return result;
 		

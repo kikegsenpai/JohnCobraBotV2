@@ -16,10 +16,10 @@ import struct.GameData;
 public class MCTS {
 
 	// CONSTANTS
-	public static final int N_FRAMES_SIMULATED = 60;
+	public static final int N_FRAMES_SIMULATED = 30;
 	public static final int DEPTH_LIMIT = 3;
 	public static final int N_ITERATIONS = 50;
-	public static final int N_RANDOM_ACTIONS = 5;
+	public static final int N_RANDOM_ACTIONS = 3;
 	public static final double C = Math.sqrt(2);
 
 	// TOOLS

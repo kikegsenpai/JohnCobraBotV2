@@ -220,95 +220,40 @@ public class JohnCobraBot implements AIInterface {
 		State enemyState = opponentData.getState();
 		int myEnergy = myCharacterData.getEnergy();
 		int enemyEnergy = opponentData.getEnergy();
-		
-		int x = frameData.getDistanceX();
-		Deque<AttackData> projectiles;
-		if(playerNumber)
-			projectiles=frameData.getProjectilesByP2();
-		else
-			projectiles=frameData.getProjectilesByP1();
-	
-				
-		
-		if((frameData.getCharacter(playerNumber).getHp() - frameData.getCharacter(!playerNumber).getHp())>50){
-			
-			selected.add(Action.STAND_GUARD);
-	
-		} else if(myState==State.STAND && myEnergy>=150) { 									    //Bolazo de fuego
-			
-			selected.add(Action.STAND_D_DF_FC);
-			
-		} else if(myCharacterData.getCenterX()<50) {											//Esquina izquierda
-			if(!myCharacterData.isFront()) { 												//ABUSAR
-				
-				selected.add(Action.CROUCH_B);
-				selected.add(Action.CROUCH_FB);
-				if(myEnergy>55)
-					selected.add(Action.STAND_F_D_DFB);
-				else
-					selected.add(Action.STAND_A);				
-				selected.add(Action.JUMP);
-				
-			}else {							 												//ESCAPAR
-				selected.add(Action.FOR_JUMP);
-				selected.add(Action.STAND_GUARD);
-				selected.add(Action.CROUCH_GUARD);
-			}
-		}else if(myCharacterData.getCenterX()>910) {										//Esquina derecha
-			
-			if(myCharacterData.isFront()) { 												//ABUSAR
-				
-				selected.add(Action.CROUCH_B);
-				selected.add(Action.CROUCH_FB);
-				if(myEnergy>55)
-					selected.add(Action.STAND_F_D_DFB);
-				else
-					selected.add(Action.STAND_A);				
-				selected.add(Action.JUMP);
-				
-			}else {							 												//ESCAPAR
-				selected.add(Action.FOR_JUMP);
-				selected.add(Action.STAND_GUARD);
-				selected.add(Action.CROUCH_GUARD);
-			}
-			
-		}else if(myState==State.AIR  && projectiles.isEmpty()) {							//En el aire
-			
-			if(myEnergy>50 && x>300) {
-				selected.add(Action.AIR_D_DB_BB);
-				selected.add(Action.AIR_D_DF_FB);
-			}
-				selected.add(Action.AIR_FB);
-			selected.add(Action.AIR_DB);
-			selected.add(Action.AIR_DA);
-	
-		}else if(x < 500 && x > 450 && myState==State.STAND && enemyState==State.STAND) {	//Distancia Inicial, ambos en el suelo
-			
-			selected.add(Action.STAND_FB);
-			selected.add(Action.CROUCH_FB);
-			selected.add(Action.FOR_JUMP);
-			if(myEnergy>55)
-				selected.add(Action.STAND_F_D_DFB);
-			else
-				selected.add(Action.STAND_F_D_DFA);
-	
-		}else if(x<100){																	//Close Combat
-			selected.add(Action.CROUCH_A);
-			selected.add(Action.THROW_A);
-			selected.add(Action.STAND_B);
-			selected.add(Action.BACK_JUMP);
-		}else if(x>600){																	//Full Screen
-			selected.add(Action.DASH);
-			selected.add(Action.FOR_JUMP);
-			selected.add(Action.STAND_D_DB_BA);
-		}else {
-			
-			selected.add(Action.FOR_JUMP);
-			
+		int x=frameData.getDistanceX();
+		if (myState == State.AIR) {
+			selected.add(Action.AIR_FA);
+			selected.add(Action.AIR_B );
+			if(myEnergy>20)
+				selected.add(Action.AIR_FA);
 		}
-	
+		if(x<200) {
+			if (myState == State.STAND || myState == State.CROUCH) {
+				if(myEnergy>150)
+					selected.add(Action.STAND_D_DF_FC);
+				if(myEnergy>55)
+					selected.add(Action.STAND_F_D_DFB);
+				if(myEnergy>50)
+					selected.add(Action.STAND_D_DB_BB);
+				selected.add(Action.STAND_B);
+				selected.add(Action.CROUCH_FB);
+				selected.add(Action.STAND_FB);			
+			}
+		}else {
+			if((frameData.getCharacter(playerNumber).getHp() - frameData.getCharacter(!playerNumber).getHp()) > 50) 
+				selected.add(Action.STAND_GUARD);
+			else {
+				selected.add(Action.FORWARD_WALK);
+				selected.add(Action.FOR_JUMP);
+			}
+				
+		}
+		
+		
+		
+		
+
 		return selected;
-	
 	}
 
 

@@ -88,3 +88,5 @@ iswin: false	|| HP1:-257	|| HP2:-209	|| DIFF:48	|| P1:JohnCobraBot	|| P2:SimpleA
 iswin: false	|| HP1:-450	|| HP2:-353	|| DIFF:97	|| P1:JohnCobraBot	|| P2:SimpleAI
 iswin: true	|| HP1:-20	|| HP2:-86	|| DIFF:66	|| P1:JohnCobraBot	|| P2:SimpleAI
 iswin: false	|| HP1:-346	|| HP2:-251	|| DIFF:95	|| P1:JohnCobraBot	|| P2:SimpleAI
+iswin: false	|| HP1:-356	|| HP2:-200	|| DIFF:156	|| P1:JohnCobraBot	|| P2:SimpleAI
+iswin: true	|| HP1:-68	|| HP2:-121	|| DIFF:53	|| P1:JohnCobraBot	|| P2:SimpleAI
