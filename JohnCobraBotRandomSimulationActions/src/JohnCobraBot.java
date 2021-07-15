@@ -59,16 +59,21 @@ public class JohnCobraBot implements AIInterface {
 	private CharacterData opponentData;
 	private ArrayList<MotionData> myCharacterMotion;
 	private ArrayList<MotionData> opponentMotion;
-
+	
 	private LinkedList<Action> enemyActionPool;
 	private LinkedList<Action> myActionPool;
+	private LinkedList<Action> mySelectedActions;
 
-	private LinkedList<Action> air;
+	private LinkedList<Action> oppAir;
+	private LinkedList<Action> oppGround;
+	private LinkedList<Action> myGroundActions;
+	private LinkedList<Action> myAirActions;
 
-	private LinkedList<Action> ground;
+
 
 	File dir;
 	File file;
+
 
 	// MÉTODOS
 	@Override
@@ -87,8 +92,11 @@ public class JohnCobraBot implements AIInterface {
 	@Override
 	public int initialize(GameData gameData, boolean playerNumber) {
 
-		air = new LinkedList<Action>();
-		ground = new LinkedList<Action>();
+		oppAir = new LinkedList<Action>();
+		oppGround = new LinkedList<Action>();
+		myAirActions = new LinkedList<Action>();
+		myGroundActions = new LinkedList<Action>();
+		
 		orderMoves();
 
 		this.gameData = gameData;
@@ -118,12 +126,9 @@ public class JohnCobraBot implements AIInterface {
 				inputKey = cc.getSkillKey();
 			} else {
 				inputKey.empty();
-				cc.skillCancel();
+				cc.skillCancel();				
 
-				myActionPool = selectMyMoves();
-				enemyActionPool = selectEnemyMoves();
-
-				MCTS mcts = new MCTS(playerNumber, frameData, gameData, myActionPool, enemyActionPool);
+				MCTS mcts = new MCTS(playerNumber, frameData, gameData, oppGround, oppAir, myAirActions, myGroundActions, mySelectedActions);
 
 				int n = 0;
 				mcts.root = new Node(null);
@@ -142,6 +147,7 @@ public class JohnCobraBot implements AIInterface {
 
 	}
 
+
 	public boolean canProcess() {
 		return !frameData.getEmptyFlag() && frameData.getRemainingFramesNumber() > 0;
 	}
@@ -156,62 +162,79 @@ public class JohnCobraBot implements AIInterface {
 
 	public void orderMoves() {
 
-		air.add(Action.AIR_A);
-		air.add(Action.AIR_B);
-		air.add(Action.AIR_DA);
-		air.add(Action.AIR_DB);
-		air.add(Action.AIR_FA);
-		air.add(Action.AIR_FB);
-		air.add(Action.AIR_UA);
-		air.add(Action.AIR_UB);
+		oppAir.add(Action.AIR_A);
+		oppAir.add(Action.AIR_B);
+		oppAir.add(Action.AIR_DA);
+		oppAir.add(Action.AIR_DB);
+		oppAir.add(Action.AIR_FA);
+		oppAir.add(Action.AIR_FB);
+		oppAir.add(Action.AIR_UA);
+		oppAir.add(Action.AIR_UB);
 
-		air.add(Action.AIR_D_DF_FA); // -5
+		oppAir.add(Action.AIR_D_DF_FA); 
+		oppAir.add(Action.AIR_F_D_DFA); 
+		oppAir.add(Action.AIR_D_DB_BA); 
+		oppAir.add(Action.AIR_D_DF_FB); 
+		oppAir.add(Action.AIR_F_D_DFB); 
+		oppAir.add(Action.AIR_D_DB_BB); 
 
-		air.add(Action.AIR_F_D_DFA); // Puñetazo ligero con inercia hacia delante (-10)
-		air.add(Action.AIR_D_DB_BA); // Puñetazo pesado con inercia hacia delante (-10)
+		oppGround.add(Action.FORWARD_WALK);
+		oppGround.add(Action.DASH);
+		oppGround.add(Action.BACK_STEP);
+		oppGround.add(Action.CROUCH);
+		oppGround.add(Action.JUMP);
+		oppGround.add(Action.FOR_JUMP);
+		oppGround.add(Action.BACK_JUMP);
+		oppGround.add(Action.STAND_GUARD);
+		oppGround.add(Action.CROUCH_GUARD);
+		oppGround.add(Action.STAND_A);
+		oppGround.add(Action.STAND_B);
+		oppGround.add(Action.CROUCH_A);
+		oppGround.add(Action.CROUCH_B);
+		oppGround.add(Action.STAND_FA);
+		oppGround.add(Action.STAND_FB);
+		oppGround.add(Action.CROUCH_FA);
+		oppGround.add(Action.CROUCH_FB);
+		oppGround.add(Action.CROUCH_FA);
+		oppGround.add(Action.STAND_F_D_DFA);
+		oppGround.add(Action.STAND_D_DB_BA);
 
-		air.add(Action.AIR_D_DF_FB); // -20
+		oppGround.add(Action.THROW_A);
+		oppGround.add(Action.STAND_D_DF_FA);
+		oppGround.add(Action.THROW_B);
+		oppGround.add(Action.STAND_D_DF_FB);
+		oppGround.add(Action.STAND_D_DB_BB);
+		oppGround.add(Action.STAND_F_D_DFB);
+		oppGround.add(Action.STAND_D_DF_FC);
 
-		air.add(Action.AIR_F_D_DFB); // Patada ligera con inercia hacia delante (-40)
-
-		air.add(Action.AIR_D_DB_BB); // Patada pesada con inercia hacia delante (-50)
-
-		ground.add(Action.FORWARD_WALK);
-		ground.add(Action.DASH);
-		ground.add(Action.BACK_STEP);
-		ground.add(Action.CROUCH);
-		ground.add(Action.JUMP);
-		ground.add(Action.FOR_JUMP);
-		ground.add(Action.BACK_JUMP);
-		ground.add(Action.STAND_GUARD);
-		ground.add(Action.CROUCH_GUARD);
-		ground.add(Action.STAND_A);
-		ground.add(Action.STAND_B);
-		ground.add(Action.CROUCH_A);
-		ground.add(Action.CROUCH_B);
-		ground.add(Action.STAND_FA);
-		ground.add(Action.STAND_FB);
-		ground.add(Action.CROUCH_FA);
-		ground.add(Action.CROUCH_FB);
-		ground.add(Action.CROUCH_FA);
-		ground.add(Action.STAND_F_D_DFA);
-		ground.add(Action.STAND_D_DB_BA);
-
-		ground.add(Action.THROW_A);
-		ground.add(Action.STAND_D_DF_FA);
-
-		ground.add(Action.THROW_B);
-
-		ground.add(Action.STAND_D_DF_FB);
-
-		ground.add(Action.STAND_D_DB_BB);
-
-		ground.add(Action.STAND_F_D_DFB);
-
-		ground.add(Action.STAND_D_DF_FC);
-
+		myGroundActions.add(Action.STAND_GUARD);
+		myGroundActions.add(Action.STAND_D_DF_FC);
+		myGroundActions.add(Action.CROUCH_B);
+		myGroundActions.add(Action.CROUCH_FB);
+		myGroundActions.add(Action.STAND_F_D_DFB);
+		myGroundActions.add(Action.STAND_A);
+		myGroundActions.add(Action.JUMP);
+		myGroundActions.add(Action.FOR_JUMP);
+		myGroundActions.add(Action.CROUCH_GUARD);
+		myGroundActions.add(Action.STAND_FB);
+		myGroundActions.add(Action.STAND_F_D_DFA);
+		myGroundActions.add(Action.CROUCH_A);
+		myGroundActions.add(Action.THROW_A);
+		myGroundActions.add(Action.STAND_B);
+		myGroundActions.add(Action.BACK_JUMP);
+		myGroundActions.add(Action.DASH);
+		myGroundActions.add(Action.STAND_D_DB_BA);
+		
+		myAirActions.add(Action.AIR_D_DB_BB);
+		myAirActions.add(Action.AIR_D_DF_FB);
+		myAirActions.add(Action.AIR_FB);
+		myAirActions.add(Action.AIR_DB);
+		myAirActions.add(Action.AIR_DA);
+		
+		
 	}
 
+	
 	public LinkedList<Action> selectMyMoves() {
 	
 		LinkedList<Action> selected = new LinkedList<Action>();
@@ -219,7 +242,6 @@ public class JohnCobraBot implements AIInterface {
 		State myState = myCharacterData.getState();
 		State enemyState = opponentData.getState();
 		int myEnergy = myCharacterData.getEnergy();
-		int enemyEnergy = opponentData.getEnergy();
 		
 		int x = frameData.getDistanceX();
 		Deque<AttackData> projectiles;
@@ -310,40 +332,8 @@ public class JohnCobraBot implements AIInterface {
 		return selected;
 	
 	}
-
-
-
-	public LinkedList<Action> selectEnemyMoves() {
-		LinkedList<Action> selected = new LinkedList<Action>();
-
-		// System.out.println(opponentData.getAction().name());
-
-		State enemyState = opponentData.getState();
-		int enemyEnergy = opponentData.getEnergy();
-		int x = frameData.getDistanceX();
-
-		if (enemyState == State.AIR) {
-
-			for (int i = 0; i < air.size(); i++) {
-				if (Math.abs(opponentMotion.get(Action.valueOf(air.get(i).name()).ordinal())
-						.getAttackStartAddEnergy()) <= enemyEnergy) {
-					selected.add(air.get(i));
-				}
-			}
-		} else {
-
-			for (int i = 0; i < ground.size(); i++) {
-				if (Math.abs(opponentMotion.get(Action.valueOf(ground.get(i).name()).ordinal())
-						.getAttackStartAddEnergy()) <= enemyEnergy) {
-					selected.add(ground.get(i));
-				}
-			}
-		}
-
-		return selected;
-
-	}
-
+	
+	
 	// --------------------RECORD LOGS----------------------------
 
 	private void writeData(String filePath, String data) {

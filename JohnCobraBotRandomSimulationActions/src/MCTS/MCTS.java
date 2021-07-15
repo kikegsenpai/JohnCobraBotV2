@@ -12,6 +12,7 @@ import simulator.Simulator;
 import struct.CharacterData;
 import struct.FrameData;
 import struct.GameData;
+import struct.MotionData;
 
 public class MCTS {
 
@@ -20,6 +21,8 @@ public class MCTS {
 	public static final int DEPTH_LIMIT = 3;
 	public static final int N_ITERATIONS = 50;
 	public static final int N_RANDOM_ACTIONS = 3;
+	public static final int N_CHILDS = 3;
+
 	public static final double C = Math.sqrt(2);
 
 	// TOOLS
@@ -30,27 +33,34 @@ public class MCTS {
 	// DATA
 	public Node root;
 
+	private LinkedList<Action> oppAir;
+	private LinkedList<Action> oppGround;
+	private LinkedList<Action> myAirActions;
+	private LinkedList<Action> myGroundActions;
+	
 	private LinkedList<Action> myActionPool;
-	private LinkedList<Action> enemyActionPool;
-	private CharacterData oppOGState;
-	private CharacterData playerOGState;
-	public FrameData fd; // State
+	
+	public FrameData fd; // Frame
 	public GameData gameData; // GameData	
 
-	public MCTS(boolean player, FrameData fd, GameData gameData, LinkedList<Action> myActionPool,
-			LinkedList<Action> enemyActionPool) {
+	
+	public MCTS(boolean player, FrameData fd, GameData gameData, 
+			LinkedList<Action> oppAir,LinkedList<Action> oppGround,
+			LinkedList<Action> myAirActions, LinkedList<Action> myGroundActions,
+			LinkedList<Action> myActionPool) {
 		random = new Random();
 
 		this.simulator = gameData.getSimulator();
 		this.player = player;
 		this.fd = fd;
 		this.gameData = gameData;
+		
 		this.myActionPool = myActionPool;
-		this.enemyActionPool = enemyActionPool;
 		
-		
-		oppOGState = fd.getCharacter(!player);
-		playerOGState = fd.getCharacter(player);
+		this.oppAir = oppAir;
+		this.oppGround = oppGround;
+		this.myAirActions = myAirActions;
+		this.myGroundActions = myGroundActions;
 
 	}
 
@@ -80,11 +90,42 @@ public class MCTS {
 		return selectedNode;
 	}
 
+	public LinkedList<Action> setActionPool(FrameData frameData, boolean playerNumber, LinkedList<Action> air , LinkedList<Action> ground) {
+		LinkedList<Action> selected = new LinkedList<Action>();
+
+		State state = frameData.getCharacter(playerNumber).getState();
+		int energy = frameData.getCharacter(playerNumber).getEnergy();
+		
+		if (state == State.AIR) {
+
+			for (int i = 0; i < air.size(); i++) {
+				if (Math.abs(gameData.getMotionData(playerNumber).get(Action.valueOf(air.get(i).name()).ordinal())
+						.getAttackStartAddEnergy()) <= energy) {
+					selected.add(air.get(i));
+				}
+			}
+		} else {
+
+			for (int i = 0; i < ground.size(); i++) {
+				if (Math.abs(gameData.getMotionData(playerNumber).get(Action.valueOf(ground.get(i).name()).ordinal())
+						.getAttackStartAddEnergy()) <= energy) {
+					selected.add(ground.get(i));
+				}
+			}
+		}
+
+		return selected;
+
+	}
+	
 	public double playout(Node node) {
 
+		LinkedList<Action> myActionPool = setActionPool(node.player, myAirActions, myGroundActions);
+		LinkedList<Action> enemyActionPool = setActionPool(!player, oppAir, oppGround);
+		
 		LinkedList<Action> myRandomActions = new LinkedList<Action>();
 		LinkedList<Action> enemyRandomActions = new LinkedList<Action>();
-
+		
 		myRandomActions.addFirst(node.action);
 		
 		for (int i = 0; i < N_RANDOM_ACTIONS; i++) {

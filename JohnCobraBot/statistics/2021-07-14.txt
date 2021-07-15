@@ -300,3 +300,4 @@ iswin: true	|| HP1:-290	|| HP2:-363	|| DIFF:73	|| P1:JohnCobraBot	|| P2:SimpleAI
 iswin: true	|| HP1:-167	|| HP2:-226	|| DIFF:59	|| P1:JohnCobraBot	|| P2:SimpleAI
 iswin: true	|| HP1:-60	|| HP2:-116	|| DIFF:56	|| P1:JohnCobraBot	|| P2:SimpleAI
 iswin: false	|| HP1:-423	|| HP2:-353	|| DIFF:70	|| P1:JohnCobraBot	|| P2:SimpleAI
+iswin: false	|| HP1:-374	|| HP2:-274	|| DIFF:100	|| P1:JohnCobraBot	|| P2:MctsAi
