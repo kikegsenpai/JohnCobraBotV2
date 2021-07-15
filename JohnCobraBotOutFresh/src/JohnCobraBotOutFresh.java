@@ -18,7 +18,7 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import MCTS.MonteCarloTS;
-import MCTS.Node;
+import MCTS.Nodo;
 import enumerate.Action;
 import enumerate.State;
 import simulator.Simulator;
@@ -94,7 +94,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 		
 		air=new LinkedList<Action>();
 		ground=new LinkedList<Action>();
-
+		orderMoves();
 		mcts=new MonteCarloTS(player,gd);
 		
 		myCharacterMotion = gd.getMotionData(player);
@@ -133,7 +133,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 	private void preparation() {
         simFd = this.sim.simulate(fd, player, (Deque)null, (Deque)null, 14);
         mcts.fd=simFd;
-        mcts.root=new Node(simFd);
+        mcts.root=new Nodo(simFd);
         mcts.oppActions=selectEnemyMoves();
         mcts.myActions=selectMyMovesEspecific();
         /*mcts.root = new Node(null);
@@ -233,7 +233,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 			selected.add(Action.FOR_JUMP);
 			
 		}
-	
+		System.out.println(selected);
 		return selected;
 	
 	}
@@ -241,12 +241,9 @@ public class JohnCobraBotOutFresh implements AIInterface {
 	public LinkedList<Action> selectEnemyMoves() {
 		LinkedList<Action> selected = new LinkedList<Action>();
 
-		// System.out.println(opponentData.getAction().name());
-
 		State enemyState = opponentData.getState();
 		int enemyEnergy = opponentData.getEnergy();
-		int x = simFd.getDistanceX();
-
+		
 		if (enemyState == State.AIR) {
 
 			for (int i = 0; i < air.size(); i++) {
@@ -264,6 +261,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 				}
 			}
 		}
+		System.out.println(selected);
 
 		return selected;
 

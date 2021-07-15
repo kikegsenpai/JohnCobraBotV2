@@ -12,12 +12,12 @@ import struct.GameData;
 public class MonteCarloTS {
 
 	public static final int PROCESSING_TIME = 160 * 100000;
-	public static final int N_FRAMES_SIMULATED = 30;
+	public static final int N_FRAMES_SIMULATED = 60;
 	public static final int DEPTH_LIMIT = 3;
-	public static final int N_SIM_ACTIONS = 3;
+	public static final int N_SIM_ACTIONS = 5;
 	public static final double C = Math.sqrt(2);
 
-	public Node root;
+	public Nodo root;
     public FrameData fd;
 	public Simulator simulator;
 
@@ -39,6 +39,7 @@ public class MonteCarloTS {
 		this.random=new Random();
 		this.player=player;
 		this.gd=gd;
+		this.simulator=gd.getSimulator();
 	}
 	
 	public void execute() {
@@ -48,8 +49,8 @@ public class MonteCarloTS {
 		}
 	}
 
-	private void executeOneIteration(Node node) {
-		Node current=node;
+	private void executeOneIteration(Nodo node) {
+		Nodo current=node;
 		double score=-9999;
 		if(current.isLeaf()) {
 			if(current.n==0) {
@@ -65,10 +66,10 @@ public class MonteCarloTS {
 		}
 	}	
 	
-	private Node selection(Node node) {
-		Node selectedNode = null;
+	private Nodo selection(Nodo node) {
+		Nodo selectedNode = null;
 		double bestUCB1 = -9999;
-		for (Node child : node.children) {
+		for (Nodo child : node.children) {
 			calculateUCB1(child);
 
 			if (bestUCB1 < child.ucb1) {
@@ -80,14 +81,14 @@ public class MonteCarloTS {
 		return selectedNode;
 	}
 	
-	private void expansion(Node node) {
+	private void expansion(Nodo node) {
 		for(Action action : myActions) {
-			Node newNode= new Node(action,fd);
+			Nodo newNode= new Nodo(action,fd);
 			node.children.add(newNode);
 		}
 	}
 	
-	private double playout(Node node) {
+	private double playout(Nodo node) {
 		//Mis Acciones simuladas
 		myActionsSim=new LinkedList<Action>();
 		myActionsSim.addAll(node.myActions);
@@ -97,16 +98,22 @@ public class MonteCarloTS {
 		//Acciones simuladas del oponente
 		oppActionsSim=new LinkedList<Action>();
 		while(oppActionsSim.size()<N_SIM_ACTIONS) {
-			oppActionsSim.add(myActions.get(random.nextInt(oppActions.size())));
+			oppActionsSim.add(oppActions.get(random.nextInt(oppActions.size())));
 		}
+		System.out.println(myActionsSim==null);
+		System.out.println(oppActionsSim==null);
+		System.out.println(fd==null);
+		System.out.println(player);
+
+
 		//Simulación
 		FrameData simulated =simulator.simulate(fd, player, myActionsSim , oppActionsSim, N_FRAMES_SIMULATED);
 		
 		return calculateScoreSimple(simulated);
 	}
 	
-	private void update(Node node, Double score) {
-		Node current=node;
+	private void update(Nodo node, Double score) {
+		Nodo current=node;
 		while(current!=null) {
 			current.n++;
 			current.t+=score;
@@ -133,7 +140,7 @@ public class MonteCarloTS {
 		return result;	
 	}
 	
-	public double calculateUCB1(Node node) {
+	public double calculateUCB1(Nodo node) {
 		double result;
 		if (node.n == 0)
 			result = 9999 + random.nextInt(50);
@@ -152,7 +159,7 @@ public class MonteCarloTS {
 		printNode(root);
 	}
 
-	public void printNode(Node node) {
+	public void printNode(Nodo node) {
 		for (int i = 0; i < node.depth; i++)
 			System.out.print("    ");
 		System.out.println(node);

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import enumerate.Action;
 import struct.FrameData;
 
-public class Node {
+public class Nodo {
 
 	// CONSTANTS
 
@@ -14,8 +14,8 @@ public class Node {
 	public FrameData fd;
 	public LinkedList<Action> myActions;
 
-	public Node parent;
-	public ArrayList<Node> children;
+	public Nodo parent;
+	public ArrayList<Nodo> children;
 	public int depth; 
 
 	//PROPERTIES
@@ -24,17 +24,17 @@ public class Node {
 	public double ucb1; 
 	
 	//root
-	public Node(FrameData fd) {
+	public Nodo(FrameData fd) {
 		myActions=new LinkedList<Action>();
 		this.fd=fd;
 		parent = null;		
-		children = new ArrayList<Node>();
+		children = new ArrayList<Nodo>();
 		depth = 0;
 		n = 0;
 		t = 0;
 	}
 	
-	public Node(Action action, FrameData fd) {
+	public Nodo(Action action, FrameData fd) {
 		this(fd);
 		myActions.addAll(parent.myActions);
 		myActions.addLast(action);
