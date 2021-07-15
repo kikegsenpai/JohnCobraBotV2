@@ -11,9 +11,9 @@ import struct.GameData;
 
 public class MonteCarloTS {
 
-	public static final int PROCESSING_TIME = 160 * 100000;
+	public static final int PROCESSING_TIME = 16500000;
 	public static final int N_FRAMES_SIMULATED = 60;
-	public static final int DEPTH_LIMIT = 3;
+	public static final int DEPTH_LIMIT = 5;
 	public static final int N_SIM_ACTIONS = 5;
 	public static final double C = Math.sqrt(2);
 
@@ -43,10 +43,13 @@ public class MonteCarloTS {
 	}
 	
 	public void execute() {
+		int n=0;
 		long start = System.nanoTime();
 		for (; System.nanoTime() - start <= PROCESSING_TIME;) {
 			executeOneIteration(root);
+			n++;
 		}
+		System.out.println("N: "+n);
 	}
 
 	private void executeOneIteration(Nodo node) {
@@ -56,8 +59,11 @@ public class MonteCarloTS {
 			if(current.n==0) {
 				score = playout(current);
 			} else {
-				expansion(current);
-				score = playout(current.children.get(0));
+				if(current.depth<DEPTH_LIMIT) {
+					expansion(current);
+					current=current.children.get(0);
+				}
+				score = playout(current);
 			}
 			update(current,score);
 		}else {
@@ -83,7 +89,7 @@ public class MonteCarloTS {
 	
 	private void expansion(Nodo node) {
 		for(Action action : myActions) {
-			Nodo newNode= new Nodo(action,fd);
+			Nodo newNode= new Nodo(node,action,fd);
 			node.children.add(newNode);
 		}
 	}
@@ -100,12 +106,6 @@ public class MonteCarloTS {
 		while(oppActionsSim.size()<N_SIM_ACTIONS) {
 			oppActionsSim.add(oppActions.get(random.nextInt(oppActions.size())));
 		}
-		System.out.println(myActionsSim==null);
-		System.out.println(oppActionsSim==null);
-		System.out.println(fd==null);
-		System.out.println(player);
-
-
 		//Simulación
 		FrameData simulated =simulator.simulate(fd, player, myActionsSim , oppActionsSim, N_FRAMES_SIMULATED);
 		
@@ -150,9 +150,40 @@ public class MonteCarloTS {
 		return result;
 	}
 	
-	public Action getBestUCB1Child() {
-		// TODO Auto-generated method stub
-		return null;
+	public Action getBestUCB1Child(boolean print) {
+		double best = 0;
+		Action bestAction = Action.BACK_STEP;
+
+		for (int i = 0; i < root.children.size(); i++) {
+			if (root.children.get(i).n > best) {
+				best = root.children.get(i).n;
+				bestAction = root.children.get(i).myActions.getFirst();
+			}
+		}
+		if(print)
+			printTree();
+		System.out.println("ELECCION: "+bestAction.name());
+		System.out.println("=============================================================");
+
+		return bestAction;
+	}
+
+	public Action getMostVisitedChild(boolean print) {
+		double mostVisited = 0;
+		Action mostVisitedAction = Action.BACK_STEP;
+
+		for (int i = 0; i < root.children.size(); i++) {
+			if (root.children.get(i).n > mostVisited) {
+				mostVisited = root.children.get(i).n;
+				mostVisitedAction = root.children.get(i).myActions.getFirst();
+			}
+		}
+		if(print)
+			printTree();
+		System.out.println("ELECCION: "+mostVisitedAction.name());
+		System.out.println("=============================================================");
+
+		return mostVisitedAction;
 	}
 
 	public void printTree() {

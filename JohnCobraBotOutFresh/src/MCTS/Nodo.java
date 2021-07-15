@@ -34,10 +34,12 @@ public class Nodo {
 		t = 0;
 	}
 	
-	public Nodo(Action action, FrameData fd) {
+	public Nodo(Nodo parent, Action action, FrameData fd) {
 		this(fd);
-		myActions.addAll(parent.myActions);
+		this.parent=parent;
+		myActions.addAll(this.parent.myActions);
 		myActions.addLast(action);
+		depth=parent.depth+1;
 	}
 
 	public boolean isLeaf() {
@@ -46,7 +48,7 @@ public class Nodo {
 	
 	@Override
 	public String toString() {
-		String result = "("+t+"/"+n+") "+depth+" UCB1: "+ ucb1+" //		+action.name()" ;
+		String result = "("+t+"/"+n+") "+depth+" UCB1: "+ ucb1+" //		"+myActions.toString() ;
 		return result;
 	}
 

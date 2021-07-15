@@ -26,8 +26,7 @@ import simulator.Simulator;
 /**
  * @author Enrique Garrido Sánchez
  **/
-public class JohnCobraBotOutFresh implements AIInterface {
-
+public class JoestarBot implements AIInterface {
 
 	/*
 	 * 
@@ -61,7 +60,6 @@ public class JohnCobraBotOutFresh implements AIInterface {
 	private ArrayList<MotionData> myCharacterMotion;
 	private ArrayList<MotionData> opponentMotion;
 
-	
 	File dir;
 	File file;
 
@@ -86,17 +84,17 @@ public class JohnCobraBotOutFresh implements AIInterface {
 	public int initialize(GameData gd, boolean player) {
 
 		this.gd = gd;
-		sim=gd.getSimulator();
+		sim = gd.getSimulator();
 		this.player = player;
 		this.inputKey = new Key();
 		this.cc = new CommandCenter();
 		this.fd = new FrameData();
-		
-		air=new LinkedList<Action>();
-		ground=new LinkedList<Action>();
+
+		air = new LinkedList<Action>();
+		ground = new LinkedList<Action>();
 		orderMoves();
-		mcts=new MonteCarloTS(player,gd);
-		
+		mcts = new MonteCarloTS(player, gd);
+
 		myCharacterMotion = gd.getMotionData(player);
 		opponentMotion = gd.getMotionData(!player);
 
@@ -119,11 +117,11 @@ public class JohnCobraBotOutFresh implements AIInterface {
 			} else {
 				inputKey.empty();
 				cc.skillCancel();
-				
+
 				preparation();
-				
+
 				mcts.execute();
-				cc.commandCall(mcts.getBestUCB1Child().name());
+				cc.commandCall(mcts.getBestUCB1Child(false).name());
 
 			}
 		}
@@ -131,111 +129,125 @@ public class JohnCobraBotOutFresh implements AIInterface {
 	}
 
 	private void preparation() {
-        simFd = this.sim.simulate(fd, player, (Deque)null, (Deque)null, 14);
-        mcts.fd=simFd;
-        mcts.root=new Nodo(simFd);
-        mcts.oppActions=selectEnemyMoves();
-        mcts.myActions=selectMyMovesEspecific();
-        /*mcts.root = new Node(null);
-		mcts.expansion(mcts.root);*/
+		simFd = this.sim.simulate(fd, player, (Deque) null, (Deque) null, 14);
+		mcts.fd = simFd;
+		mcts.root = new Nodo(simFd);
+		mcts.oppActions = selectEnemyMoves();
+		mcts.myActions = selectMyMovesEspecific();
+
 	}
-	
+
 	public LinkedList<Action> selectMyMovesEspecific() {
-		
+
 		LinkedList<Action> selected = new LinkedList<Action>();
-	
+
 		State myState = myCharacterData.getState();
 		State enemyState = opponentData.getState();
 		int myEnergy = myCharacterData.getEnergy();
-		
+
 		int x = simFd.getDistanceX();
 		Deque<AttackData> projectiles;
-		if(player)
-			projectiles=simFd.getProjectilesByP2();
+		if (player)
+			projectiles = simFd.getProjectilesByP2();
 		else
-			projectiles=simFd.getProjectilesByP1();
-	
-				
-		
-		if((simFd.getCharacter(player).getHp() - simFd.getCharacter(!player).getHp())>50){
-			
-			selected.add(Action.STAND_GUARD);
-	
-		} else if(myState==State.STAND && myEnergy>=150) { 									    //Bolazo de fuego
-			
+			projectiles = simFd.getProjectilesByP1();
+
+		boolean bolazo = false;
+		for (AttackData atk : projectiles) {
+			if (atk.getHitDamage() > 100) {
+				bolazo = true;
+			}
+		}
+		if (bolazo) {
+
+			selected.add(Action.FOR_JUMP);
+			selected.add(Action.BACK_JUMP);
+
+		} else if ((simFd.getCharacter(player).getHp() - simFd.getCharacter(!player).getHp()) > 150) {
+
+			if (x > 200) {
+				selected.add(Action.STAND_GUARD);
+				selected.add(Action.CROUCH_GUARD);
+			} else {
+				selected.add(Action.FOR_JUMP);
+				selected.add(Action.BACK_JUMP);
+			}
+
+		} else if (myState == State.STAND && myEnergy >= 150) { // Bolazo de fuego
+
 			selected.add(Action.STAND_D_DF_FC);
-			
-		} else if(myCharacterData.getCenterX()<50) {											//Esquina izquierda
-			if(!myCharacterData.isFront()) { 												//ABUSAR
-				
+
+		} else if (myCharacterData.getCenterX() < 50) { // Esquina izquierda
+			if (!myCharacterData.isFront()) { // ABUSAR
+
 				selected.add(Action.CROUCH_B);
 				selected.add(Action.CROUCH_FB);
-				if(myEnergy>55)
+				if (myEnergy > 55)
 					selected.add(Action.STAND_F_D_DFB);
 				else
-					selected.add(Action.STAND_A);				
+					selected.add(Action.STAND_A);
 				selected.add(Action.JUMP);
-				
-			}else {							 												//ESCAPAR
+
+			} else { // ESCAPAR
 				selected.add(Action.FOR_JUMP);
 				selected.add(Action.STAND_GUARD);
 				selected.add(Action.CROUCH_GUARD);
 			}
-		}else if(myCharacterData.getCenterX()>910) {										//Esquina derecha
-			
-			if(myCharacterData.isFront()) { 												//ABUSAR
-				
+		} else if (myCharacterData.getCenterX() > 910) { // Esquina derecha
+
+			if (myCharacterData.isFront()) { // ABUSAR
+
 				selected.add(Action.CROUCH_B);
 				selected.add(Action.CROUCH_FB);
-				if(myEnergy>55)
+				if (myEnergy > 55)
 					selected.add(Action.STAND_F_D_DFB);
 				else
-					selected.add(Action.STAND_A);				
+					selected.add(Action.STAND_A);
 				selected.add(Action.JUMP);
-				
-			}else {							 												//ESCAPAR
+
+			} else { // ESCAPAR
 				selected.add(Action.FOR_JUMP);
 				selected.add(Action.STAND_GUARD);
 				selected.add(Action.CROUCH_GUARD);
 			}
-			
-		}else if(myState==State.AIR  && projectiles.isEmpty()) {							//En el aire
-			
-			if(myEnergy>50 && x>300) {
+
+		} else if (myState == State.AIR && projectiles.isEmpty()) { // En el aire
+
+			if (myEnergy > 50 && x > 300) {
 				selected.add(Action.AIR_D_DB_BB);
 				selected.add(Action.AIR_D_DF_FB);
 			}
-				selected.add(Action.AIR_FB);
+			selected.add(Action.AIR_FB);
 			selected.add(Action.AIR_DB);
 			selected.add(Action.AIR_DA);
-	
-		}else if(x < 500 && x > 450 && myState==State.STAND && enemyState==State.STAND) {	//Distancia Inicial, ambos en el suelo
-			
+
+		} else if (x < 500 && x > 450 && myState == State.STAND && enemyState == State.STAND) { // Distancia Inicial,
+																								// ambos en el suelo
+
 			selected.add(Action.STAND_FB);
 			selected.add(Action.CROUCH_FB);
 			selected.add(Action.FOR_JUMP);
-			if(myEnergy>55)
+			if (myEnergy > 55)
 				selected.add(Action.STAND_F_D_DFB);
 			else
 				selected.add(Action.STAND_F_D_DFA);
-	
-		}else if(x<100){																	//Close Combat
+
+		} else if (x < 100) { // Close Combat
 			selected.add(Action.CROUCH_A);
 			selected.add(Action.THROW_A);
 			selected.add(Action.STAND_B);
 			selected.add(Action.BACK_JUMP);
-		}else if(x>600){																	//Full Screen
+		} else if (x > 600) { // Full Screen
 			selected.add(Action.DASH);
 			selected.add(Action.FOR_JUMP);
 			selected.add(Action.STAND_D_DB_BA);
-		}else {
-			
+		} else {
+
 			selected.add(Action.FOR_JUMP);
-			
+
 		}
-		System.out.println(selected);
 		return selected;
-	
+
 	}
 
 	public LinkedList<Action> selectEnemyMoves() {
@@ -243,7 +255,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 
 		State enemyState = opponentData.getState();
 		int enemyEnergy = opponentData.getEnergy();
-		
+
 		if (enemyState == State.AIR) {
 
 			for (int i = 0; i < air.size(); i++) {
@@ -261,12 +273,39 @@ public class JohnCobraBotOutFresh implements AIInterface {
 				}
 			}
 		}
-		System.out.println(selected);
 
 		return selected;
 
 	}
-	
+
+	public LinkedList<Action> selectMyMoves() {
+		LinkedList<Action> selected = new LinkedList<Action>();
+
+		State state = myCharacterData.getState();
+		int energy = myCharacterData.getEnergy();
+
+		if (state == State.AIR) {
+
+			for (int i = 0; i < air.size(); i++) {
+				if (Math.abs(myCharacterMotion.get(Action.valueOf(air.get(i).name()).ordinal())
+						.getAttackStartAddEnergy()) <= energy) {
+					selected.add(air.get(i));
+				}
+			}
+		} else {
+
+			for (int i = 0; i < ground.size(); i++) {
+				if (Math.abs(myCharacterMotion.get(Action.valueOf(ground.get(i).name()).ordinal())
+						.getAttackStartAddEnergy()) <= energy) {
+					selected.add(ground.get(i));
+				}
+			}
+		}
+
+		return selected;
+
+	}
+
 	public void orderMoves() {
 
 		air.add(Action.AIR_A);
@@ -324,7 +363,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 		ground.add(Action.STAND_D_DF_FC);
 
 	}
-	
+
 	public boolean canProcess() {
 		return !fd.getEmptyFlag() && fd.getRemainingFramesNumber() > 0;
 	}
@@ -336,8 +375,6 @@ public class JohnCobraBotOutFresh implements AIInterface {
 				+ gd.getAiName(player) + "	|| P2:" + gd.getAiName(!player);
 		writeData(file.getPath(), data);
 	}
-
-	
 
 	// --------------------RECORD LOGS----------------------------
 
