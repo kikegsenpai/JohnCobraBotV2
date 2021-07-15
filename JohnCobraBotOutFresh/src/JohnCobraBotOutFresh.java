@@ -17,7 +17,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Random;
 
-import MCTS.MCTS;
+import MCTS.MonteCarloTS;
 import MCTS.Node;
 import enumerate.Action;
 import enumerate.State;
@@ -43,7 +43,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 	// --disable-window --grey-bg --inverted-player 1
 
 	// ALGORITMO
-	MCTS mcts;
+	MonteCarloTS mcts;
 
 	// VARIABLES
 	private Key inputKey;
@@ -95,7 +95,7 @@ public class JohnCobraBotOutFresh implements AIInterface {
 		air=new LinkedList<Action>();
 		ground=new LinkedList<Action>();
 
-		mcts=new MCTS(player,gd);
+		mcts=new MonteCarloTS(player,gd);
 		
 		myCharacterMotion = gd.getMotionData(player);
 		opponentMotion = gd.getMotionData(!player);

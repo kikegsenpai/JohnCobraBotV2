@@ -9,7 +9,7 @@ import simulator.Simulator;
 import struct.FrameData;
 import struct.GameData;
 
-public class MCTS {
+public class MonteCarloTS {
 
 	public static final int PROCESSING_TIME = 160 * 100000;
 	public static final int N_FRAMES_SIMULATED = 30;
@@ -35,7 +35,7 @@ public class MCTS {
 	private Random random;
 
 
-	public MCTS(boolean player,GameData gd) {
+	public MonteCarloTS(boolean player,GameData gd) {
 		this.random=new Random();
 		this.player=player;
 		this.gd=gd;
