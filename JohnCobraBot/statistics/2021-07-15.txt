@@ -393,3 +393,12 @@ iswin: true	|| HP1:-265	|| HP2:-348	|| DIFF:83	|| P1:JohnCobraBotOutFresh	|| P2:
 iswin: true	|| HP1:-323	|| HP2:-495	|| DIFF:172	|| P1:JohnCobraBotOutFresh	|| P2:MctsAi
 iswin: true	|| HP1:-358	|| HP2:-429	|| DIFF:71	|| P1:JoestarBot	|| P2:MctsAi
 iswin: false	|| HP1:-483	|| HP2:-386	|| DIFF:97	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:-120	|| HP2:-292	|| DIFF:172	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-121	|| HP2:-325	|| DIFF:204	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-225	|| HP2:-385	|| DIFF:160	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-198	|| HP2:-414	|| DIFF:216	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-120	|| HP2:-305	|| DIFF:185	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-115	|| HP2:-272	|| DIFF:157	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-136	|| HP2:-292	|| DIFF:156	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-253	|| HP2:-514	|| DIFF:261	|| P1:JoestarBot	|| P2:SimpleAI
+iswin: true	|| HP1:-183	|| HP2:-343	|| DIFF:160	|| P1:JoestarBot	|| P2:SimpleAI

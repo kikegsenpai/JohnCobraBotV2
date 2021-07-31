@@ -56,7 +56,7 @@ public class MonteCarloTS {
 		Nodo current=node;
 		double score=-9999;
 		if(current.isLeaf()) {
-			if(current.n==0) {
+			if(current.parent!=null && current.n==0) {
 				score = playout(current);
 			} else {
 				if(current.depth<DEPTH_LIMIT) {
@@ -74,22 +74,25 @@ public class MonteCarloTS {
 	
 	private Nodo selection(Nodo node) {
 		Nodo selectedNode = null;
-		double bestUCB1 = -9999;
+		double maximum = -9999;
+		double current;
 		for (Nodo child : node.children) {
-			calculateUCB1(child);
-
-			if (bestUCB1 < child.ucb1) {
+			
+			current = selectionUCB1(child);
+			current = selectionBestScore(child);
+			
+			if (maximum < current) {
 				selectedNode = child;
-				bestUCB1 = child.ucb1;
+				maximum = current;
 			}
 		}
 
 		return selectedNode;
 	}
-	
+
 	private void expansion(Nodo node) {
 		for(Action action : myActions) {
-			Nodo newNode= new Nodo(node,action,fd);
+			Nodo newNode= new Nodo(node,action);
 			node.children.add(newNode);
 		}
 	}
@@ -97,7 +100,7 @@ public class MonteCarloTS {
 	private double playout(Nodo node) {
 		//Mis Acciones simuladas
 		myActionsSim=new LinkedList<Action>();
-		myActionsSim.addAll(node.myActions);
+		myActionsSim.addAll(node.actionList);
 		while(myActionsSim.size()<N_SIM_ACTIONS) {
 			myActionsSim.add(myActions.get(random.nextInt(myActions.size())));
 		}
@@ -109,26 +112,56 @@ public class MonteCarloTS {
 		//Simulación
 		FrameData simulated =simulator.simulate(fd, player, myActionsSim , oppActionsSim, N_FRAMES_SIMULATED);
 		
-		return calculateScoreSimple(simulated);
+		return evaluationPond(simulated);
 	}
 	
 	private void update(Nodo node, Double score) {
 		Nodo current=node;
 		while(current!=null) {
 			current.n++;
-			current.t+=score;
+			current.s+=score;
 			current=current.parent;
 		}
 	}
 	
-	public double calculateScoreSimple (FrameData fd) { // ADD MULTIPLOS SITUACIONES FAVORABLES COMO STUN
+	//SELECTION POLITICS
+	public double selectionBestScore(Nodo node) {
+		double result;
+		if (node.n == 0)
+			result = random.nextInt(10);
+		else
+			result=node.s;
+		return result;
+	}
+	
+		public double selectionUCB1(Nodo node) {
+			double result;
+			if (node.n == 0)
+				result = 9999 + random.nextInt(50);
+			else
+				result = node.s / node.n + C * Math.sqrt(Math.log(node.parent.n) / node.n);
+			return result;
+		}
 		
+		public double selectionBestMean(Nodo node) {
+			double result;
+			if (node.n == 0)
+				result = random.nextInt(10);
+			else
+				result=node.s/node.n;
+			return result;
+		}
 		
+	//EVALUATION POLITICS
+		public double evaluationSimple (FrameData fd) { 
+			double result = fd.getCharacter(player).getHp() - fd.getCharacter(!player).getHp();
+			return result;	
+		}
+		
+		public double evaluationPond (FrameData fd) {
 		State myState = fd.getCharacter(player).getState();
 		State opponentState = fd.getCharacter(!player).getState();
-		
 		double result = fd.getCharacter(player).getHp() - fd.getCharacter(!player).getHp();
-		//PONDERACION PARA PRIORIZAR LA VIDA NANTE LA DISTANCIA
 		double pond= fd.getDistanceX()/1000;
 		result += result*pond ;
 		
@@ -140,24 +173,33 @@ public class MonteCarloTS {
 		return result;	
 	}
 	
-	public double calculateUCB1(Nodo node) {
-		double result;
-		if (node.n == 0)
-			result = 9999 + random.nextInt(50);
-		else
-			result = node.t / node.n + C * Math.sqrt(Math.log(node.parent.n) / node.n);
-		node.ucb1 = result;
-		return result;
-	}
 	
-	public Action getBestUCB1Child(boolean print) {
-		double best = 0;
+	//FINAL SELECTIONS
+	public Action getMostVisitedChild(boolean print) {
+		double best = -999999;
 		Action bestAction = Action.BACK_STEP;
 
 		for (int i = 0; i < root.children.size(); i++) {
 			if (root.children.get(i).n > best) {
 				best = root.children.get(i).n;
-				bestAction = root.children.get(i).myActions.getFirst();
+				bestAction = root.children.get(i).actionList.getFirst();
+			}
+		}
+		if(print)
+			printTree();
+		System.out.println("ELECCION: "+bestAction.name());
+
+		return bestAction;
+	}
+
+	public Action getBestScoreChild(boolean print) {
+		double best = -999999;
+		Action bestAction = Action.BACK_STEP;
+
+		for (int i = 0; i < root.children.size(); i++) {
+			if (root.children.get(i).s > best) {
+				best = root.children.get(i).s;
+				bestAction = root.children.get(i).actionList.getFirst();
 			}
 		}
 		if(print)
@@ -167,25 +209,7 @@ public class MonteCarloTS {
 
 		return bestAction;
 	}
-
-	public Action getMostVisitedChild(boolean print) {
-		double mostVisited = 0;
-		Action mostVisitedAction = Action.BACK_STEP;
-
-		for (int i = 0; i < root.children.size(); i++) {
-			if (root.children.get(i).n > mostVisited) {
-				mostVisited = root.children.get(i).n;
-				mostVisitedAction = root.children.get(i).myActions.getFirst();
-			}
-		}
-		if(print)
-			printTree();
-		System.out.println("ELECCION: "+mostVisitedAction.name());
-		System.out.println("=============================================================");
-
-		return mostVisitedAction;
-	}
-
+	
 	public void printTree() {
 		printNode(root);
 	}

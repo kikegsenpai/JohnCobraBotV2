@@ -30,7 +30,7 @@ import simulator.Simulator;
 // -n 10 --c1 ZEN --c2 ZEN --a1 JoestarBot --a2 MctsAi --mute --inverted-player 1 --disable-window --grey-bg
 
 
-public class JoestarBot implements AIInterface {
+public class Jotaro implements AIInterface {
 
 	MonteCarloTS mcts;
 

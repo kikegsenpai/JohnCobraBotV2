@@ -1,0 +1,21 @@
+
+iswin: true	|| HP1:0	|| HP2:92	|| DIFF:92	|| P1:JoestarBot	|| P2:MctsAi
+iswin: false	|| HP1:0	|| HP2:118	|| DIFF:118	|| P1:JoestarBot	|| P2:MctsAi
+iswin: false	|| HP1:22	|| HP2:0	|| DIFF:22	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:89	|| HP2:0	|| DIFF:89	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:17	|| HP2:0	|| DIFF:17	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:74	|| HP2:0	|| DIFF:74	|| P1:JoestarBot	|| P2:MctsAi
+iswin: false	|| HP1:0	|| HP2:84	|| DIFF:84	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:123	|| HP2:0	|| DIFF:123	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:30	|| HP2:0	|| DIFF:30	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:60	|| HP2:0	|| DIFF:60	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:59	|| HP2:0	|| DIFF:59	|| P1:JoestarBot	|| P2:MctsAi
+iswin: false	|| HP1:0	|| HP2:74	|| DIFF:74	|| P1:JoestarBot	|| P2:MctsAi
+iswin: false	|| HP1:0	|| HP2:24	|| DIFF:24	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:110	|| HP2:0	|| DIFF:110	|| P1:JoestarBot	|| P2:MctsAi
+iswin: false	|| HP1:0	|| HP2:116	|| DIFF:116	|| P1:JoestarBot	|| P2:MctsAi
+iswin: false	|| HP1:0	|| HP2:11	|| DIFF:11	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:157	|| HP2:0	|| DIFF:157	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:119	|| HP2:0	|| DIFF:119	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:128	|| HP2:0	|| DIFF:128	|| P1:JoestarBot	|| P2:MctsAi
+iswin: true	|| HP1:0	|| HP2:64	|| DIFF:64	|| P1:JoestarBot	|| P2:MctsAi

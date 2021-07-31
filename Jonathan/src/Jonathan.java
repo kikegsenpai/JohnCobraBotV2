@@ -26,11 +26,10 @@ import simulator.Simulator;
  **/
 
 // PARÁMETROS DE LANZAMIENTO
-// -n 10 --c1 ZEN --c2 ZEN --a1 JoestarBot --a2 MctsAi --mute --inverted-player 1
-// -n 10 --c1 ZEN --c2 ZEN --a1 JoestarBot --a2 MctsAi --mute --inverted-player 1 --disable-window --grey-bg
+// -n 10 --c1 ZEN --c2 ZEN --a1 Jonathan --a2 MctsAi --mute --inverted-player 1
+// -n 50 --c1 ZEN --c2 ZEN --a1 Jonathan --a2 MctsAi --mute --inverted-player 1 --disable-window --grey-bg
 
-
-public class JoestarBot implements AIInterface {
+public class Jonathan implements AIInterface {
 
 	MonteCarloTS mcts;
 
@@ -52,7 +51,8 @@ public class JoestarBot implements AIInterface {
 
 	// MÉTODOS GENERALES
 	@Override
-	public void close() {}
+	public void close() {
+	}
 
 	@Override
 	public void getInformation(FrameData fd, boolean isControl) {
@@ -75,7 +75,7 @@ public class JoestarBot implements AIInterface {
 		air = new LinkedList<Action>();
 		ground = new LinkedList<Action>();
 		orderMoves();
-		
+
 		mcts = new MonteCarloTS(player, gd);
 
 		myCharacterMotion = gd.getMotionData(player);
@@ -92,7 +92,7 @@ public class JoestarBot implements AIInterface {
 	}
 
 	@Override
-	public void processing() { 
+	public void processing() {
 		if (canProcess()) {
 			if (cc.getSkillFlag()) {
 				inputKey = cc.getSkillKey();
@@ -101,9 +101,9 @@ public class JoestarBot implements AIInterface {
 				cc.skillCancel();
 				preparation();
 				mcts.execute();
-				String move=mcts.getMostVisitedChild(false).name();
-				if(move=="STAND_GUARD")
-					move="4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4";
+				String move = mcts.getMostVisitedChild(false).name();
+				if (move == "STAND_GUARD")
+					move = "4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4";
 				cc.commandCall(move);
 			}
 		}
@@ -111,20 +111,15 @@ public class JoestarBot implements AIInterface {
 
 	@Override
 	public void roundEnd(int p1Hp, int p2Hp, int frames) {
-		boolean win=(p1Hp > p2Hp) ;
-		int diff=(Math.abs(p1Hp) - Math.abs(p2Hp));
+		boolean win = (p1Hp > p2Hp);
+		int diff = (Math.abs(p1Hp) - Math.abs(p2Hp));
 		String p1 = gd.getAiName(player);
 		String p2 = gd.getAiName(!player);
 
-		String row =  win
-						+ ", " + p1Hp
-						+ ", " + p2Hp 
-						+ ", " + diff
-						+ ", " + p1 
-						+ ", " + p2;
-		writeData(file.getPath(),row);
+		String row = win + ", " + p1Hp + ", " + p2Hp + ", " + diff + ", " + p1 + ", " + p2;
+		writeData(file.getPath(), row);
 	}
-	
+
 	// MÉTODOS ESPECÍFICOS
 	public void preparation() {
 		simFd = this.sim.simulate(fd, player, (Deque) null, (Deque) null, 14);
@@ -162,7 +157,7 @@ public class JoestarBot implements AIInterface {
 		return selected;
 
 	}
-	
+
 	public LinkedList<Action> selectMyMovesEspecific() {
 
 		LinkedList<Action> selected = new LinkedList<Action>();
@@ -184,7 +179,7 @@ public class JoestarBot implements AIInterface {
 				bolazo = true;
 			}
 		}
-		
+
 		if (bolazo) {
 
 			selected.add(Action.FOR_JUMP);
@@ -271,20 +266,22 @@ public class JoestarBot implements AIInterface {
 	}
 
 	public LinkedList<Action> selectEnemyMoves() {
-		
+
 		LinkedList<Action> selected = new LinkedList<Action>();
 		State enemyState = opponentData.getState();
 		int enemyEnergy = opponentData.getEnergy();
 
 		if (enemyState == State.AIR) {
 			for (int i = 0; i < air.size(); i++) {
-				if (Math.abs(opponentMotion.get(Action.valueOf(air.get(i).name()).ordinal()).getAttackStartAddEnergy()) <= enemyEnergy) {
+				if (Math.abs(opponentMotion.get(Action.valueOf(air.get(i).name()).ordinal())
+						.getAttackStartAddEnergy()) <= enemyEnergy) {
 					selected.add(air.get(i));
 				}
 			}
 		} else {
 			for (int i = 0; i < ground.size(); i++) {
-				if (Math.abs(opponentMotion.get(Action.valueOf(ground.get(i).name()).ordinal()).getAttackStartAddEnergy()) <= enemyEnergy) {
+				if (Math.abs(opponentMotion.get(Action.valueOf(ground.get(i).name()).ordinal())
+						.getAttackStartAddEnergy()) <= enemyEnergy) {
 					selected.add(ground.get(i));
 				}
 			}
@@ -305,11 +302,11 @@ public class JoestarBot implements AIInterface {
 		air.add(Action.AIR_UA);
 		air.add(Action.AIR_UB);
 
-		air.add(Action.AIR_D_DF_FA); 
-		air.add(Action.AIR_F_D_DFA); 
-		air.add(Action.AIR_D_DB_BA); 
-		air.add(Action.AIR_D_DF_FB); 
-		air.add(Action.AIR_F_D_DFB); 
+		air.add(Action.AIR_D_DF_FA);
+		air.add(Action.AIR_F_D_DFA);
+		air.add(Action.AIR_D_DB_BA);
+		air.add(Action.AIR_D_DF_FB);
+		air.add(Action.AIR_F_D_DFB);
 		air.add(Action.AIR_D_DB_BB);
 
 		ground.add(Action.FORWARD_WALK);
@@ -352,9 +349,9 @@ public class JoestarBot implements AIInterface {
 	private void writeData(String filePath, String data) {
 		try {
 			final FileWriter writer = new FileWriter(filePath, true);
-			final BufferedWriter buffer = new BufferedWriter(writer);	
-			buffer.write(data+"\n");
-			buffer.close();			
+			final BufferedWriter buffer = new BufferedWriter(writer);
+			buffer.write(data + "\n");
+			buffer.close();
 			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -385,7 +382,7 @@ public class JoestarBot implements AIInterface {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if (!dir.exists()) {
 			dir.mkdir();
 		}
